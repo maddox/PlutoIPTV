@@ -103,12 +103,25 @@ plutoIPTV.grabJSON(function (err, channels) {
       let group = channel.category;
       let name = channel.name;
 
+      if (forChannels) {
+        let logo = channel.colorLogoPNG.path;
+        let art = channel.featuredImage.path.replace("w=1600", "w=1000").replace("h=900", "h=562");
+        let guideDescription = channel.summary.replace(/(\r\n|\n|\r)/gm," ").replace('"', '').replace("”", "")
+
+      m3u8 =
+        m3u8 +
+        `#EXTINF:0 channel-id="${slug}" tvg-logo="${logo}" tvc-guide-art="${art}" tvc-guide-title="${name}" tvc-guide-description="${guideDescription}" group-title="${group}", ${name}
+${m3uUrl}
+
+`;
+      } else {
       m3u8 =
         m3u8 +
         `#EXTINF:0 channel-id="${slug}" tvg-logo="${logo}" group-title="${group}", ${name}
 ${m3uUrl}
 
 `;
+      }
 
       console.log('[INFO] Adding ' + channel.name + ' channel.');
     } else {
