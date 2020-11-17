@@ -8,6 +8,12 @@ const uuid4 = require('uuid').v4;
 const uuid1 = require('uuid').v1;
 const url = require('url');
 
+let forChannels = false;
+if (process.argv.includes("forChannels")) {
+  forChannels = true;
+}
+
+
 const plutoIPTV = {
   grabJSON: function (callback) {
     callback = callback || function () {};
