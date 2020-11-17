@@ -15,7 +15,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "pluto-iptv": "./index.js"
+    "pluto-iptv": "./index.js",
+    "channels-pluto-iptv": "./index.js forChannels"
   },
   "repository": "git+https://github.com/evoactivity/PlutoIPTV.git",
   "author": "Liam Potter <liam@liampotter.co.uk>",
