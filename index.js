@@ -149,6 +149,13 @@ ${m3uUrl}
           );
 
           tv.push({
+          let isMovie = programme.episode.series.type == "film";
+          let airingArt
+          if (isMovie) {
+            airingArt = programme.episode.poster.path
+          } else {
+            airingArt = programme.episode.series.tile.path.replace("w=660", "w=900").replace("h=660", "h=900")
+          }
             name: 'programme',
             attrs: {
               start: moment(programme.start).format('YYYYMMDDHHmmss ZZ'),
@@ -157,6 +164,7 @@ ${m3uUrl}
             },
             children: [
               { name: 'title', attrs: { lang: 'en' }, text: programme.title },
+              { name: 'icon', attrs: { src: airingArt } },
               {
                 name: 'sub-title',
                 attrs: { lang: 'en' },
@@ -173,6 +181,11 @@ ${m3uUrl}
               {
                 name: 'date',
                 text: moment(programme.episode.firstAired).format('YYYYMMDD'),
+              },
+              {
+                name: 'category',
+                attrs: { lang: 'en' },
+                text: isMovie ? "Movie" : "Series",
               },
               {
                 name: 'category',
