@@ -8,6 +8,11 @@ const uuid4 = require('uuid').v4;
 const uuid1 = require('uuid').v1;
 const url = require('url');
 
+const kidsGenres = ["Kids", "Children & Family", "Kids' TV", "Cartoons", "Animals", "Family Animation", "Ages 2-4", "Ages 11-12"];
+const newsGenres = ["News + Opinion", "General News"];
+const sportsGenres = ["Sports", "Sports & Sports Highlights", "Sports Documentaries"];
+const dramaGenres = ["Crime", "Action & Adventure", "Thrillers", "Romance", "Sci-Fi & Fantasy", "Teen Dramas", "Film Noir", "Romantic Comedies", "Indie Dramas", "Romance Classics", "Crime Action", "Action Sci-Fi & Fantasy", "Action Thrillers", "Crime Thrillers", "Political Thrillers", "Classic Thrillers", "Classic Dramas", "Sci-Fi Adventure", "Romantic Dramas", "Mystery", "Psychological Thrillers", "Foreign Classic Dramas", "Classic Westerns", "Westerns", "Sci-Fi Dramas", "Supernatural Thrillers", "Mobster", "Action Classics", "African-American Action", "Suspense", "Family Dramas", "Alien Sci-Fi", "Sci-Fi Cult Classics"];
+
 const plutoIPTV = {
   grabJSON: function (callback) {
     callback = callback || function () {};
@@ -148,14 +153,26 @@ ${m3uUrl}
               '.'
           );
 
-          tv.push({
           let isMovie = programme.episode.series.type == "film";
+
+          let channelsGenres = [];
+          [["Children", kidsGenres], ["News", newsGenres], ["Sports", sportsGenres], ["Drama", dramaGenres]].forEach((genrePackage) => {
+            genreName = genrePackage[0]
+            genres = genrePackage[1]
+
+            if (genres.includes(programme.episode.genre) || genres.includes(programme.episode.subGenre) || genres.includes(channel.category)) {
+              channelsGenres.push(genreName)
+            }
+          })
+
           let airingArt
           if (isMovie) {
             airingArt = programme.episode.poster.path
           } else {
             airingArt = programme.episode.series.tile.path.replace("w=660", "w=900").replace("h=660", "h=900")
           }
+
+          airing = {
             name: 'programme',
             attrs: {
               start: moment(programme.start).format('YYYYMMDDHHmmss ZZ'),
@@ -203,7 +220,18 @@ ${m3uUrl}
                 text: programme.episode.number,
               },
             ],
-          });
+          }
+
+          channelsGenres.forEach((genre) => {
+            airing.children.push(
+              { name: 'category',
+                attrs: { lang: 'en' },
+                text: genre,
+              }
+            )
+          })
+
+          tv.push(airing)
         });
       }
     }
