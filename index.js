@@ -8,12 +8,6 @@ const uuid4 = require('uuid').v4;
 const uuid1 = require('uuid').v1;
 const url = require('url');
 
-let forChannels = false;
-if (process.argv.includes("forChannels")) {
-  forChannels = true;
-}
-
-
 const plutoIPTV = {
   grabJSON: function (callback) {
     callback = callback || function () {};
@@ -99,14 +93,11 @@ plutoIPTV.grabJSON(function (err, channels) {
       m3uUrl = m3uUrl.toString();
 
       let slug = channel.slug;
-      let logo = channel.solidLogoPNG.path;
+      let logo = channel.colorLogoPNG.path;
       let group = channel.category;
       let name = channel.name;
-
-      if (forChannels) {
-        let logo = channel.colorLogoPNG.path;
-        let art = channel.featuredImage.path.replace("w=1600", "w=1000").replace("h=900", "h=562");
-        let guideDescription = channel.summary.replace(/(\r\n|\n|\r)/gm," ").replace('"', '').replace("”", "")
+      let art = channel.featuredImage.path.replace("w=1600", "w=1000").replace("h=900", "h=562");
+      let guideDescription = channel.summary.replace(/(\r\n|\n|\r)/gm," ").replace('"', '').replace("”", "")
 
       m3u8 =
         m3u8 +
@@ -114,15 +105,6 @@ plutoIPTV.grabJSON(function (err, channels) {
 ${m3uUrl}
 
 `;
-      } else {
-      m3u8 =
-        m3u8 +
-        `#EXTINF:0 channel-id="${slug}" tvg-logo="${logo}" group-title="${group}", ${name}
-${m3uUrl}
-
-`;
-      }
-
       console.log('[INFO] Adding ' + channel.name + ' channel.');
     } else {
       console.log("[DEBUG] Skipping 'fake' channel " + channel.name + '.');
