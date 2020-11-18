@@ -215,6 +215,11 @@ ${m3uUrl}
                 text: programme.episode.subGenre,
               },
               {
+                name: 'series-id',
+                attrs: { system: 'pluto' },
+                text: programme.episode.series._id,
+              },
+              {
                 name: 'episode-num',
                 attrs: { system: 'onscreen' },
                 text: programme.episode.number,
