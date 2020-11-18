@@ -8,8 +8,6 @@ const uuid4 = require('uuid').v4;
 const uuid1 = require('uuid').v1;
 const url = require('url');
 
-let startChannelNumber = parseInt(process.argv[2])
-
 const plutoIPTV = {
   grabJSON: function (callback) {
     callback = callback || function () {};
@@ -64,7 +62,6 @@ plutoIPTV.grabJSON(function (err, channels) {
   ///////////////////
 
   let m3u8 = '#EXTM3U\n\n';
-  let channelNumber = startChannelNumber;
   channels.forEach((channel) => {
     let deviceId = uuid1();
     let sid = uuid4();
@@ -103,21 +100,13 @@ plutoIPTV.grabJSON(function (err, channels) {
       let guideDescription = channel.summary.replace(/(\r\n|\n|\r)/gm," ").replace('"', '').replace("”", "")
       let channelNumberTag;
 
-      if (channelNumber) {
-        channelNumberTag = `channel-number="${channelNumber}"`
-      }
-
       m3u8 =
         m3u8 +
-        `#EXTINF:0 channel-id="${slug}" ${channelNumberTag ? channelNumberTag : ""} tvg-logo="${logo}" tvc-guide-art="${art}" tvc-guide-title="${name}" tvc-guide-description="${guideDescription}" group-title="${group}", ${name}
+        `#EXTINF:0 channel-id="${slug}" tvg-logo="${logo}" tvc-guide-art="${art}" tvc-guide-title="${name}" tvc-guide-description="${guideDescription}" group-title="${group}", ${name}
 ${m3uUrl}
 
 `;
       console.log('[INFO] Adding ' + channel.name + ' channel.');
-
-    if (channelNumber) {
-      channelNumber++;
-    }
 
     } else {
       console.log("[DEBUG] Skipping 'fake' channel " + channel.name + '.');
