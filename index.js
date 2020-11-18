@@ -224,6 +224,11 @@ ${m3uUrl}
                 attrs: { system: 'onscreen' },
                 text: programme.episode.number,
               },
+              {
+                name: 'episode-num',
+                attrs: { system: 'original-air-date' },
+                text: programme.episode.clip.originalReleaseDate,
+              },
             ],
           }
 
