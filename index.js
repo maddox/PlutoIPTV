@@ -30,30 +30,63 @@ const plutoIPTV = {
       if (now - mtime <= 1800) {
         console.log("[DEBUG] Using cache.json, it's under 30 minutes old.");
 
-        callback(false, fs.readJSONSync('cache.json'));
+        callback(fs.readJSONSync('cache.json'));
         return;
       }
     }
 
-    // 2020-03-24%2021%3A00%3A00.000%2B0000
-    let startTime = encodeURIComponent(
-      moment().format('YYYY-MM-DD HH:00:00.000ZZ')
-    );
+    let startMoment = moment()
 
-    // 2020-03-25%2005%3A00%3A00.000%2B0000
-    let stopTime = encodeURIComponent(
-      moment().add(36, 'hours').format('YYYY-MM-DD HH:00:00.000ZZ')
-    );
+    let timeRanges = []
+    for (let i=0; i<4; i++) {
+      let endMoment = moment(startMoment).add(6, 'hours')
+      timeRanges.push([startMoment, endMoment])
+      startMoment = endMoment
+    }
 
-    let url = `http://api.pluto.tv/v2/channels?start=${startTime}&stop=${stopTime}`;
+    let promises = []
+    timeRanges.forEach((timeRange) => {
+      // 2020-03-24%2021%3A00%3A00.000%2B0000
+      let startTime = encodeURIComponent(
+        timeRange[0].format('YYYY-MM-DD HH:00:00.000ZZ')
+      );
 
-    console.log(url);
+      // 2020-03-25%2005%3A00%3A00.000%2B0000
+      let stopTime = encodeURIComponent(
+        timeRange[1].format('YYYY-MM-DD HH:00:00.000ZZ')
+      );
 
-    request(url, function (err, code, raw) {
+      let url = `http://api.pluto.tv/v2/channels?start=${startTime}&stop=${stopTime}`;
+      console.log(url);
+
+      promises.push(new Promise((resolve, reject) => {
+        request(url, function (err, code, raw) {
+          resolve(JSON.parse(raw));
+        })
+      }));
+
+    })
+
+    let channelsList = {}
+    Promise.all(promises).then(results => {
+      results.forEach((channels) => {
+        channels.forEach((channel) => {
+          foundChannel = channelsList[channel._id]
+
+          if (!foundChannel) {
+            channelsList[channel._id] = channel
+            foundChannel = channel
+          }else{
+            foundChannel.timelines = foundChannel.timelines.concat(channel.timelines)
+          }
+        })
+      })
+
+      fullChannels = Object.values(channelsList)
       console.log('[DEBUG] Using api.pluto.tv, writing cache.json.');
-      fs.writeFileSync('cache.json', raw);
+      fs.writeFileSync('cache.json', JSON.stringify(fullChannels));
 
-      callback(err || false, JSON.parse(raw));
+      callback(fullChannels);
       return;
     });
   },
@@ -61,7 +94,7 @@ const plutoIPTV = {
 
 module.exports = plutoIPTV;
 
-plutoIPTV.grabJSON(function (err, channels) {
+plutoIPTV.grabJSON(function (channels) {
   ///////////////////
   // M3U8 Playlist //
   ///////////////////
