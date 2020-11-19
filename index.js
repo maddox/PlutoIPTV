@@ -87,7 +87,7 @@ const plutoIPTV = {
       fs.writeFileSync('cache.json', JSON.stringify(fullChannels));
 
 
-      sortedChannels = fullChannels.sort(({number:a}, {number:b}) => a-b).map(x => x.number)
+      sortedChannels = fullChannels.sort(({number:a}, {number:b}) => a-b)
       callback(sortedChannels);
       return;
     });
